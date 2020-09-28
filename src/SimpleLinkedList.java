@@ -1,240 +1,201 @@
 import java.util.List;
+import java.util.NoSuchElementException;
+
 public class SimpleLinkedList {
-    private Node head;
-    private Node tail;
+    private  Node head;
+    private  Node tail;
     private int size;
-    public SimpleLinkedList(){
-        this.head = null;
-        this.tail = null;
-        this.size = 0;
-    }
-    public SimpleLinkedList(List<String> list) {
-            for(int i=0; i<list.size(); i++){
-                add(i, list.get(i));
-            }
-            size=list.size();
+
+    public SimpleLinkedList() {
+        head = null;
+        tail = null;
+        size = 0;
     }
 
-    public void add(int index, String s){
-        if(index<0 || index>size){
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+    public SimpleLinkedList(List<String> list) {
+        head = new Node (null, null, null);
+        tail = new Node (null, null, null);
+
+        Node current = head;
+        head = current;
+        size = 0;
+        for(int i = 0; i < list.size(); i++){
+            current.data = list.get(i);
+            Node pastCurrent = current;
+            current = new Node (pastCurrent, null, null);
+            pastCurrent.next = current;
+            tail = current;
+            size++;
         }
-        else if(index == 0){
+
+    }
+
+    public void add(int index, String s) {
+        checkIndex(index);
+        if (index == 0) {
             addFirst(s);
-        }
-        else if(index == size){
+        } else if (index == size) {
             addLast(s);
-        }
-        else {
+        } else {
             Node current = getNode(index);
             Node newNode = new Node(current.prev, s, current);
-
-            size++;
             current.prev.next = newNode;
             current.prev = newNode;
+            size++;
         }
-
     }
-    public void addFirst(String s){
+
+    public void addFirst(String s) {
         Node current = head;
         Node newNode = new Node(null, s, current);
 
         head = newNode;
-        if (current == null){
+        if (current == null) {
             tail = newNode;
-        }
-        else{
+        } else {
             current.prev = newNode;
         }
         size++;
     }
 
-    public void addLast(String s){
+    public void addLast(String s) {
         Node current = tail;
         Node newNode = new Node(current, s, null);
 
         tail = newNode;
-        if (current == null){
+        if (current == null) {
             head = newNode;
-        }
-        else {
+        } else {
             current.next = newNode;
         }
         size++;
     }
 
-    public void clear(){
-        this.head = null;
-        this.tail = null;
-        this.size = 0;
+    public void clear() {
+        head = new Node(null, null, null);
+        tail = new Node(null, null, null);
+        size = 0;
     }
 
-    public boolean contains(String s){
+    public boolean contains(String s) {
+        return hasNode(s);
+    }
+
+    public String get(int index) {
+        checkIndex(index);
+        return getNode(index).data;
+    }
+
+    public String getFirst() {
+        checkSize();
         Node current = head;
-        while(current != null){
-            if(current.data == s){
-                return true;
-            }
-            current = current.next;
-        }
-        return false;
-    }
-
-    public String get(int index){
-        if(index<0 || index>=size){
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
-        }
-        Node current = getNode(index);
-        if(current.data != null) {
-            String s = current.data;
-            return s;
-        }
-        return null;
-    }
-
-    public String getFirst(){
-        Node current = head;
-        if(current != null){
-            String s = current.data;
-            return s;
-        }
-        return null;
-    }
-
-    public String getLast(){
-        Node current = tail;
-        if(current != null){
-            String s = current.data;
-            return s;
-        }
-        return null;
-    }
-
-    public int indexOf(String s){
-        int count = 0;
-        Node current = head;
-        while(current != null){
-            if(current.data == s){
-                return count;
-            }
-            current = current.next;
-            count++;
-        }
-        return 0;
-    }
-
-    public String remove(int index){
-        Node current = getNode(index);
-        if(current == head){
-            String s = removeFirst();
-            return s;
-        }
-        else if(current == tail){
-            String s = removeLast();
-            return s;
-        }
-        else {
-            current.prev.next = current.next;
-            current.next.prev = current.prev;
-            size --;
-        }
         return current.data;
     }
 
-    public boolean remove(String s){
-        Node current = getNode(s);
-        if(current != null) {
-            if(current == head){
-                removeFirst();
-            }
-            else if(current == tail){
-                removeLast();
-            }
-            else{
-                current.prev.next = current.next;
-                current.next.prev = current.prev;
-                size --;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public String removeFirst(){
-        Node current = head;
-        if (current != null){
-            String s = current.data;
-            Node nextCurrent = current.next;
-            current.next = null;
-            nextCurrent.prev = null;
-            head = nextCurrent;
-            size --;
-            return s;
-        }
-        return null;
-    }
-
-    public String removeLast(){
+    public String getLast() {
+        checkSize();
         Node current = tail;
-        if (current != null){
+        return current.data;
+    }
+
+    public int indexOf(String s) {
+        int index = 0;
+        while(index < size) {
+            if (getNode(index).data.equals(s)) {
+                return index;
+            }
+            index++;
+        }
+        return -1;
+    }
+
+    public String remove(int index) {
+        checkIndex(index);
+        if (index == 0) {
+            return removeFirst();
+        } else if (index == size-1) {
+            return removeLast();
+        } else {
+            Node current = getNode(index);
+            current.prev.next = current.next;
+            current.next.prev = current.prev;
             String s = current.data;
-            Node nextCurrent = current.next;
-            current.next = null;
-            nextCurrent.prev = null;
-            tail = nextCurrent;
             size--;
             return s;
         }
-        return null;
     }
 
-    public String set(int index, String s){
-        if(index<0 || index>size){
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size" + size);
+    public boolean remove(String s) {
+        if (contains(s)) {
+            int index = indexOf(s);
+            if (index == 0) {
+                removeFirst();
+            }
+            if (index == size) {
+                removeLast();
+            } else {
+                Node current = getNode(index);
+                current.next.prev = current.prev;
+                current.prev.next = current.next;
+                size--;
+            }
         }
-        Node current = getNode(index);
-        current.data = s;
-        return current.data;
+      return contains(s);
     }
 
-    public int size(){
+    public String removeFirst() {
+        checkSize();
         Node current = head;
-        int count = 0;
-        while(current != null && current != tail){
-            count++;
-        }
-        return count;
+        String removed = head.data;
+        head = current.next;
+        head.prev = null;
+        size--;
+        return removed;
     }
 
-    public String toString(){
-        if(size == 0){
-            return "[]";
-        }
+    public String removeLast() {
+        checkSize();
+        Node current = tail;
+        String removed = tail.data;
+        tail = current.prev;
+        tail.next = null;
+        size--;
+        return removed;
+    }
+
+    public String set(int index, String s) {
+        checkIndex(index);
+        Node current = getNode(index);
+        String element = current.data;
+        if (s == null) s = "null";
+        current.data = s;
+        return element;
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public String toString() {
         String convert = "[";
         Node current = head;
-        for(int y=0; y<size; y++){
-            String s = current.data;
-            if(y == size) {
-                convert += current.data + "]";
-            }
-            else {
+        if (size != 0) {
+            for (int i = 0; i < size -1; i++) {
                 convert += current.data + ", ";
                 current = current.next;
             }
+            convert += current.data;
         }
-        return convert;
+        return convert + "]";
     }
 
 
-    private Node getNode(int index){
-        if(index<0 || index>=size){
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
-        }
+    private Node getNode(int index) {
+        checkIndex(index);
         int count = 0;
         Node current = head;
-
-        while(current != null){
-            if(count++ == index){
+        while (current != null) {
+            if (count++ == index) {
                 return current;
             }
             current = current.next;
@@ -242,17 +203,13 @@ public class SimpleLinkedList {
         return null;
     }
 
-    private Node getNode(String s){
-        int count = 0;
-        Node current = head;
-        while(current != null){
-            if(current.data == s){
-                return current;
+    private boolean hasNode(String s){
+        for(int i = 0; i < size; i++){
+            if(getNode(i).data.equals(s)){
+                return true;
             }
-            current = current.next;
-            count++;
         }
-        return null;
+        return false;
     }
 
     private static class Node {
@@ -265,5 +222,15 @@ public class SimpleLinkedList {
              this.data = data;
              this.next = next;
          }
+    }
+    private  void checkIndex(int index){
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+        }
+    }
+    private void checkSize(){
+        if (size==0){
+            throw new NoSuchElementException();
+        }
     }
 }
