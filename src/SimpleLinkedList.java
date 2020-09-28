@@ -17,7 +17,6 @@ public class SimpleLinkedList {
         tail = new Node (null, null, null);
 
         Node current = head;
-        head = current;
         size = 0;
         for(int i = 0; i < list.size(); i++){
             current.data = list.get(i);
@@ -27,7 +26,7 @@ public class SimpleLinkedList {
             tail = current;
             size++;
         }
-
+        tail.data = list.get(list.size()-1);
     }
 
     public void add(int index, String s) {
